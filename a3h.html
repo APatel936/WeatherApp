@@ -1,0 +1,141 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+        
+        <style>
+            
+            form{
+                width: 300px;
+                border: 2px solid blue;
+                padding: 30px;
+                height: auto;
+                border-radius: 25px;
+                margin: auto;
+                background: skyblue;
+            }
+        
+            #B{
+                width: 200px;
+                border: 2px solid blue;
+                padding: 30px;
+                height: auto;
+                background: skyblue;
+                margin: auto;
+                
+            }
+        
+            body{
+                background-image: url("background.png");
+                background-repeat: no-repeat;
+                background-size: cover;
+                background-position: auto;
+            }
+        /*https://www.w3schools.com/cssref/css3_pr_background-size.asp*/
+            
+            .busy{
+                border: 20px solid #000000;
+                
+                width:  100px;
+                height: 100px;
+                
+                border-top: 20px solid red;
+                
+                background-color: white ;
+                
+                overflow:hidden;
+                
+                border-radius: 50%;
+                
+                animation: AAA .7s linear infinite;
+            }
+        
+        @keyframes AAA {
+            0%   { transform: rotate(0deg)  ; }
+            100% { transform: rotate(360deg); }
+        }
+        /*https://web.njit.edu/~mchugh/202/NOTES/A_Weeks/WEEK12/css--spinner-cyan.html*/
+        
+            
+            
+            
+        </style>
+        
+        <script type = "text/javascript">
+            $(document).ready( function(){
+                              
+                              $("button").click(function(){
+                                                
+                                                var zip = $("#zip").val();
+                                                
+                                                if(zip != ''){
+                                                
+                                                $.ajax({
+                                                       type:         "GET",
+                                                       url:         "a3p.php",
+                                                       data:         "zip="+zip,
+                                                       
+                                                       
+                                                       beforeSend: function(){
+                                                       $("#B").html("waiting...");                },
+                                                       
+                                                       error:         function(xhr, status, error) {
+                                                       alert( "Error Mesaage:  \r\nNumeric code is: "  + xhr.status + " \r\nError is " + error);  },
+                                                       
+                                                       success:     function(result){
+                                                       
+                                                        r = JSON.parse(result);
+                                                       
+                                                      
+                                                       var temp = (r.main.temp * 9/5) + 32;
+                                                       var wspeed = (r.wind.speed) / (1609.344);
+                                                       /*google.com for conversions*/
+                                                       
+                                                       var UTCsunset = r.sys.sunset;
+                                                       var sunset = new Date(0);
+                                                       sunset.setUTCSeconds(UTCsunset);
+                                                       //https://stackoverflow.com/questions/4631928/convert-utc-epoch-to-local-date
+                                                       
+                                                       var UTCsunrise = r.sys.sunrise;
+                                                       var sunrise = new Date(0);
+                                                       sunrise.setUTCSeconds(UTCsunrise);
+                                                       
+                                                       
+                                                       res = "<img src = 'http://openweathermap.org/img/w/" + r.weather[0].icon + ".png'>";
+                                                       
+                                                        res +=  "<br>City: "          + r.name            + " "              +        /* name property             */
+                                                       "<br>Coordinate-Longitude: "   + r.coord.lon       + " "              +
+                                                       "<br>Coordinate-Latitude: "    + r.coord.lat       + " "              +
+                                                       "<br>Temperature: "            + temp              + "&deg;F "        +        /* main's temp                 */
+                                                       "<br>Weather: "                + r.weather[0].main + " "              +        /* weather's main property     */
+                                                       "<br>Description: "            + r.weather[0].description + " "       +
+                                                       "<br>Pressure: "               + r.main.pressure   + " "              +
+                                                       "<br>Visibility: "             + r.visibility      + " "              +
+                                                       "<br>Humidity: "               + r.main.humidity   + " "              +
+                                                       "<br>Wind Speed: "             + wspeed            + "  miles/hour "  +
+                                                       "<br>Sunrise: "                + sunrise           + " "              +
+                                                       "<br>Sunset: "                 + sunset            + " "              +
+                                                       
+                                                       "<br>";
+                                                       
+                                                        $("#B").html(res);
+                                                       
+                                                       }    //success  - the } closes the definition or body of the function(result){ ...
+                                                       });        //ajax  - the }) closes the  $.ajax({ ... the } closes the JSOn argument, and ) matches opening (
+                                                };            //the }  closes the if(zip != '')  {  ....
+                                                });            //anonymous fn handler for button click: } closes the body of code...the ) closes the click (   )
+                              });                //the  })  closes the ready event anonymous handler:  ready( function(){ ....
+                              
+            </script>
+    </head>
+    <body>
+        <form>
+        <h1> Weather Report</h1>
+        <input     id = "zip" type = "number" name = "zip" placeholder="Zipcode" autocomplete="off" min="0" required>
+            <button id = "btn" type = "BUTTON"><b>REQUEST WEATHER</b></button>
+            <div id= "busy"></div>
+            <div id= "B"></div>
+        </form>
+    </body>
+</html>
